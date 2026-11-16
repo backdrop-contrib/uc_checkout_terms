@@ -1,0 +1,544 @@
+<?php
+
+/**
+ * @file
+ * Rechtliche Pflichtbestätigungen für den Ubercart-Checkout.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function uc_checkout_terms_permission() {
+  return array(
+    'administer uc checkout terms' => array(
+      'title' => t('Rechtliche Checkout-Hinweise verwalten'),
+      'description' => t(
+        'AGB und Widerrufsinformationen für den Checkout zuordnen.'
+      ),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function uc_checkout_terms_menu() {
+  $items = array();
+
+  $items['admin/store/settings/checkout-terms'] = array(
+    'title' => 'Rechtliche Checkout-Hinweise',
+    'description' => 'AGB und Widerrufsinformationen zuordnen.',
+    'page callback' => 'backdrop_get_form',
+    'page arguments' => array('uc_checkout_terms_settings_form'),
+    'access arguments' => array('administer uc checkout terms'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_config_info().
+ */
+function uc_checkout_terms_config_info() {
+  return array(
+    'uc_checkout_terms.settings' => array(
+      'label' => t('Rechtliche Checkout-Hinweise'),
+      'group' => t('Configuration'),
+    ),
+  );
+}
+
+/**
+ * Einstellungsformular.
+ */
+function uc_checkout_terms_settings_form($form, &$form_state) {
+  $config = config('uc_checkout_terms.settings');
+
+  $form['intro'] = array(
+    '#markup' => '<p>' . t(
+      'Ordnen Sie die veröffentlichten Inhalte für AGB und Widerrufsinformationen zu. Bei jeder inhaltlichen Änderung müssen Sie die Versionskennung ändern und die bisherige Textfassung archivieren.'
+    ) . '</p>',
+  );
+
+  $labels = array(
+    'agb' => t('Allgemeine Geschäftsbedingungen'),
+    'widerruf' => t('Informationen zum Widerrufsrecht'),
+  );
+
+  foreach ($labels as $key => $label) {
+    $form[$key] = array(
+      '#type' => 'fieldset',
+      '#title' => $label,
+      '#tree' => FALSE,
+    );
+
+    $form[$key][$key . '_nid'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Node-ID'),
+      '#default_value' => $config->get($key . '_nid'),
+      '#required' => TRUE,
+      '#size' => 12,
+      '#maxlength' => 10,
+      '#description' => t(
+        'Nur die numerische ID eingeben. Beispiel: Für node/123 lautet die Eingabe 123. Der Inhalt muss veröffentlicht und für Gäste zugänglich sein.'
+      ),
+    );
+
+    $form[$key][$key . '_version'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Versionskennung'),
+      '#default_value' => $config->get($key . '_version'),
+      '#required' => TRUE,
+      '#maxlength' => 100,
+      '#description' => t('Zum Beispiel 2026-11-16-v1.'),
+    );
+  }
+
+  $form['actions'] = array(
+    '#type' => 'actions',
+  );
+
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Konfiguration speichern'),
+  );
+
+  return $form;
+}
+
+/**
+ * Validiert die Dokumentzuordnung.
+ */
+function uc_checkout_terms_settings_form_validate($form, &$form_state) {
+  $anonymous = backdrop_anonymous_user();
+
+  foreach (array('agb', 'widerruf') as $key) {
+    $field = $key . '_nid';
+    $input = trim((string) $form_state['values'][$field]);
+
+    if (!ctype_digit($input) || (int) $input < 1) {
+      form_set_error(
+        $field,
+        t('Bitte geben Sie eine gültige numerische Node-ID ein.')
+      );
+      continue;
+    }
+
+    $node = node_load((int) $input);
+
+    if (!$node) {
+      form_set_error(
+        $field,
+        t('Der angegebene Inhalt existiert nicht.')
+      );
+      continue;
+    }
+
+    if (
+      empty($node->status) ||
+      !node_access('view', $node, $anonymous)
+    ) {
+      form_set_error(
+        $field,
+        t('Der Inhalt muss veröffentlicht und für Gäste zugänglich sein.')
+      );
+      continue;
+    }
+
+    $form_state['values'][$field] = (int) $node->nid;
+  }
+
+  foreach (array('agb_version', 'widerruf_version') as $field) {
+    $value = trim((string) $form_state['values'][$field]);
+
+    if ($value === '') {
+      form_set_error(
+        $field,
+        t('Bitte geben Sie eine Versionskennung ein.')
+      );
+    }
+
+    $form_state['values'][$field] = $value;
+  }
+}
+
+/**
+ * Speichert die Backend-Einstellungen.
+ */
+function uc_checkout_terms_settings_form_submit($form, &$form_state) {
+  $config = config('uc_checkout_terms.settings');
+
+  foreach (array('agb', 'widerruf') as $key) {
+    $config->set(
+      $key . '_nid',
+      (int) $form_state['values'][$key . '_nid']
+    );
+
+    $config->set(
+      $key . '_version',
+      $form_state['values'][$key . '_version']
+    );
+  }
+
+  $config->save();
+
+  backdrop_set_message(t('Die Einstellungen wurden gespeichert.'));
+}
+
+/**
+ * Liefert die aktuellen Dokumentdaten.
+ *
+ * @return array|false
+ *   Dokumentdaten oder FALSE bei fehlender/ungültiger Konfiguration.
+ */
+function uc_checkout_terms_documents() {
+  $config = config('uc_checkout_terms.settings');
+  $anonymous = backdrop_anonymous_user();
+  $documents = array();
+
+  foreach (array('agb', 'widerruf') as $key) {
+    $nid = (int) $config->get($key . '_nid');
+    $version = trim((string) $config->get($key . '_version'));
+
+    if (!$nid || $version === '') {
+      return FALSE;
+    }
+
+    $node = node_load($nid);
+
+    if (
+      !$node ||
+      empty($node->status) ||
+      !node_access('view', $node, $anonymous)
+    ) {
+      return FALSE;
+    }
+
+    $body = isset($node->body) ? $node->body : array();
+
+    $documents[$key] = array(
+      'nid' => (int) $node->nid,
+      'vid' => isset($node->vid) ? (int) $node->vid : 0,
+      'title' => (string) $node->title,
+      'path' => 'node/' . $node->nid,
+      'version' => $version,
+      'body_sha256' => hash('sha256', serialize($body)),
+    );
+  }
+
+  return $documents;
+}
+
+/**
+ * Erzeugt einen Fingerabdruck der Dokumentdaten.
+ */
+function uc_checkout_terms_fingerprint($documents) {
+  return hash('sha256', serialize($documents));
+}
+
+/**
+ * Implements hook_uc_checkout_pane().
+ */
+function uc_checkout_terms_uc_checkout_pane() {
+  return array(
+    'checkout_terms' => array(
+      'id' => 'checkout_terms',
+      'title' => t('Rechtliche Hinweise'),
+      'desc' => t('Bestätigung der AGB und Widerrufsinformationen.'),
+      'callback' => 'uc_checkout_terms_pane',
+      'weight' => 9,
+      'enabled' => TRUE,
+      'process' => FALSE,
+      'collapsible' => FALSE,
+    ),
+  );
+}
+
+/**
+ * Checkout-Pane-Callback.
+ *
+ * Prüfung und Speicherung erfolgen über Formular-Handler.
+ */
+function uc_checkout_terms_pane($op, $order, $arg2 = NULL) {
+  switch ($op) {
+    case 'view':
+      $documents = uc_checkout_terms_documents();
+
+      if (!$documents) {
+        return array(
+          'contents' => array(
+            'configuration_error' => array(
+              '#markup' => '<p class="messages error">' . t(
+                'Die rechtlichen Bestellinformationen sind derzeit nicht verfügbar. Eine Bestellung ist momentan nicht möglich.'
+              ) . '</p>',
+            ),
+          ),
+        );
+      }
+
+      $contents = array();
+
+      $contents['agb'] = array(
+        '#type' => 'checkbox',
+        '#title' => t(
+          'Ich akzeptiere die <a href="@url" target="_blank" rel="noopener">AGB</a>.',
+          array('@url' => url($documents['agb']['path']))
+        ),
+        '#default_value' => 0,
+        '#required' => TRUE,
+      );
+
+      $contents['widerruf'] = array(
+        '#type' => 'checkbox',
+        '#title' => t(
+          'Ich habe die <a href="@url" target="_blank" rel="noopener">Informationen zum Widerrufsrecht</a> zur Kenntnis genommen.',
+          array('@url' => url($documents['widerruf']['path']))
+        ),
+        '#default_value' => 0,
+        '#required' => TRUE,
+      );
+
+      $contents['document_fingerprint'] = array(
+        '#type' => 'value',
+        '#value' => uc_checkout_terms_fingerprint($documents),
+      );
+
+      return array('contents' => $contents);
+
+    case 'review':
+      if (
+        empty($order->data['uc_checkout_terms_log']) &&
+        empty($order->data['checkout_terms_log'])
+      ) {
+        return array();
+      }
+
+      return array(
+        array(
+          'title' => t('Rechtliche Hinweise'),
+          'data' => t(
+            'AGB akzeptiert; Widerrufsinformationen zur Kenntnis genommen.'
+          ),
+        ),
+      );
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function uc_checkout_terms_form_uc_cart_checkout_form_alter(
+  &$form,
+  &$form_state
+) {
+  if (!isset($form['#validate'])) {
+    $form['#validate'] = array();
+  }
+
+  $form['#validate'][] = 'uc_checkout_terms_checkout_validate';
+
+  if (!isset($form['#submit'])) {
+    $form['#submit'] = array();
+  }
+
+  // Vor den regulären Checkout-Submit-Handlern speichern.
+  array_unshift(
+    $form['#submit'],
+    'uc_checkout_terms_checkout_submit'
+  );
+}
+
+/**
+ * Prüft die rechtlichen Bestätigungen.
+ */
+function uc_checkout_terms_checkout_validate($form, &$form_state) {
+  unset($form_state['uc_checkout_terms_documents']);
+
+  // Rückwärtsnavigation oder ausdrücklich eingeschränkte Validierung
+  // nicht mit einer erneuten Zustimmung blockieren.
+  $trigger = isset($form_state['triggering_element'])
+    ? $form_state['triggering_element']
+    : array();
+
+  if (
+    array_key_exists('#limit_validation_errors', $trigger) &&
+    $trigger['#limit_validation_errors'] !== FALSE
+  ) {
+    return;
+  }
+
+  $documents = uc_checkout_terms_documents();
+
+  if (!$documents) {
+    form_set_error(
+      'panes][checkout_terms',
+      t('Die rechtlichen Bestellinformationen sind derzeit nicht verfügbar.')
+    );
+    return;
+  }
+
+  $values = isset($form_state['values']['panes']['checkout_terms'])
+    ? $form_state['values']['panes']['checkout_terms']
+    : array();
+
+  if (empty($values['agb'])) {
+    form_set_error(
+      'panes][checkout_terms][agb',
+      t('Bitte akzeptieren Sie die AGB.')
+    );
+  }
+
+  if (empty($values['widerruf'])) {
+    form_set_error(
+      'panes][checkout_terms][widerruf',
+      t('Bitte bestätigen Sie die Kenntnisnahme der Widerrufsinformationen.')
+    );
+  }
+
+  $expected = uc_checkout_terms_fingerprint($documents);
+
+  if (
+    empty($values['document_fingerprint']) ||
+    $values['document_fingerprint'] !== $expected
+  ) {
+    form_set_error(
+      'panes][checkout_terms',
+      t('Die rechtlichen Informationen wurden geändert oder nicht vollständig geladen. Bitte laden Sie die Bestellseite neu und bestätigen Sie die aktuellen Fassungen.')
+    );
+  }
+
+  if (
+    empty($form_state['storage']['order']) ||
+    !is_object($form_state['storage']['order']) ||
+    empty($form_state['storage']['order']->order_id)
+  ) {
+    form_set_error(
+      'panes][checkout_terms',
+      t('Die rechtlichen Bestätigungen konnten keiner Bestellung zugeordnet werden. Bitte laden Sie die Bestellseite neu.')
+    );
+
+    watchdog(
+      'uc_checkout_terms',
+      'Bestellobjekt fehlt unter form_state storage order.',
+      array(),
+      WATCHDOG_ERROR
+    );
+  }
+
+  if (!form_get_errors()) {
+    $form_state['uc_checkout_terms_documents'] = $documents;
+  }
+}
+
+/**
+ * Speichert die Bestätigungen vor der regulären Checkout-Verarbeitung.
+ */
+function uc_checkout_terms_checkout_submit($form, &$form_state) {
+  if (empty($form_state['uc_checkout_terms_documents'])) {
+    return;
+  }
+
+  global $user;
+
+  $order = $form_state['storage']['order'];
+  $documents = $form_state['uc_checkout_terms_documents'];
+  $key = uc_checkout_terms_fingerprint($documents);
+
+  if (!isset($order->data) || !is_array($order->data)) {
+    $order->data = array();
+  }
+
+  if (
+    !isset($order->data['uc_checkout_terms_log']) ||
+    !is_array($order->data['uc_checkout_terms_log'])
+  ) {
+    $order->data['uc_checkout_terms_log'] = array();
+  }
+
+  // Vorhandene Einträge aus der bisherigen Fassung berücksichtigen.
+  if (
+    !empty($order->data['uc_checkout_terms_log'][$key]) ||
+    !empty($order->data['checkout_terms_log'][$key])
+  ) {
+    return;
+  }
+
+  $timestamp = REQUEST_TIME;
+  $uid = isset($user->uid) ? (int) $user->uid : 0;
+
+  $entry = array(
+    'order_id' => (int) $order->order_id,
+    'uid' => $uid,
+    'timestamp' => $timestamp,
+    'datetime_utc' => gmdate('Y-m-d\TH:i:s\Z', $timestamp),
+    'agb_accepted' => TRUE,
+    'widerruf_acknowledged' => TRUE,
+    'event' => 'checkout_form_submitted',
+    'documents' => $documents,
+    'confirmation_texts' => array(
+      'agb' => 'Ich akzeptiere die AGB.',
+      'widerruf' => 'Ich habe die Informationen zum Widerrufsrecht zur Kenntnis genommen.',
+    ),
+  );
+
+  $lines = array(
+    'Rechtliche Bestätigungen im Checkout erfasst.',
+    'Bestellnummer: ' . $entry['order_id'],
+    'Zeitpunkt (UTC): ' . $entry['datetime_utc'],
+    'Benutzer-ID: ' . $uid . ' (0 = Gast)',
+    'AGB akzeptiert: Ja',
+    'Widerrufsinformationen zur Kenntnis genommen: Ja',
+  );
+
+  foreach ($documents as $name => $document) {
+    $label = $name === 'agb' ? 'AGB' : 'Widerrufsinformationen';
+
+    $lines[] = $label . ': ' . $document['title'];
+    $lines[] = $label . ' - Node-ID: ' . $document['nid'];
+    $lines[] = $label . ' - Revisions-ID: ' . $document['vid'];
+    $lines[] = $label . ' - Version: ' . $document['version'];
+    $lines[] = $label . ' - Pfad: ' . $document['path'];
+    $lines[] = $label . ' - SHA-256 des Body-Feldes: ' .
+      $document['body_sha256'];
+  }
+
+  $lines[] = 'Ereignis: Checkout-Formular abgesendet; kein Zahlungsnachweis.';
+
+  // Beide Datenbankoperationen gemeinsam ausführen.
+  $transaction = db_transaction();
+
+  try {
+    $order->data['uc_checkout_terms_log'][$key] = $entry;
+
+    uc_order_save($order);
+
+    uc_order_comment_save(
+      $order->order_id,
+      $uid,
+      implode("\n", $lines),
+      'admin'
+    );
+  }
+  catch (Exception $exception) {
+    $transaction->rollback();
+
+    unset($order->data['uc_checkout_terms_log'][$key]);
+
+    watchdog(
+      'uc_checkout_terms',
+      'Die rechtlichen Bestätigungen für Bestellung @order konnten nicht gespeichert werden: @message',
+      array(
+        '@order' => $order->order_id,
+        '@message' => $exception->getMessage(),
+      ),
+      WATCHDOG_ERROR
+    );
+
+    // Checkout nicht stillschweigend ohne Protokoll fortsetzen.
+    throw $exception;
+  }
+
+  $form_state['storage']['order'] = $order;
+}

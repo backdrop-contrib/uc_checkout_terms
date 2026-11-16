@@ -1,5 +1,3 @@
-# uc_checkout_terms
-Adds required legal acknowledgements to the Ubercart checkout. Initial release; German text snippets are currently used.
 Ubercart Checkout Terms
 =======================
 
@@ -19,7 +17,6 @@ This module requires that the following modules are also enabled:
 
 
 Installation
-------------
 
 - Install this module using the official Backdrop CMS instructions at
   https://docs.backdropcms.org/documentation/extend-with-modules
@@ -52,7 +49,7 @@ https://github.com/backdrop-contrib/uc_checkout_terms/issues
 Current Maintainers
 -------------------
 
-- [Sven Götze](https://github.com/svengoetze)
+- [Sven Götze](https://github.com/djzwerg)
 - Seeking additional maintainers
 
 
