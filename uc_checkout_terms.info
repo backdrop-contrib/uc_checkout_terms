@@ -1,10 +1,10 @@
-name = Ubercart Checkout Terms
-description = Pflichtbestätigungen für AGB und Widerrufsinformationen mit Node-Autocomplete und Bestellprotokollierung.
 type = module
+name = Ubercart Checkout Terms
+description = Configurable legal documents, formatted text and checkout confirmations.
 backdrop = 1.x
-package = Ubercart - extra
-
-dependencies[] = uc_cart
-dependencies[] = uc_order
 
 configure = admin/store/settings/checkout-terms
+
+; List any dependencies here.
+dependencies[] = uc_cart
+dependencies[] = uc_order
