@@ -1,4 +1,5 @@
-# Ubercart Checkout Terms
+Ubercart Checkout Terms
+=======================
 
 Ubercart Checkout Terms manages repeatable legal documents and confirmations in
 Backdrop CMS checkout. It supports formatted inline text and field-independent
@@ -8,8 +9,14 @@ Release: 1.x-2.0.0-beta2. This package is a complete replacement module director
 It is a statically reviewed release candidate, not a live-site certification.
 
 ## Requirements
+------------
 
-- Backdrop CMS with Ubercart and its Cart and Order modules enabled.
+This module requires that the following modules are also enabled:
+
+- [Ubercart](https://github.com/backdrop-contrib/ubercart)
+  - Ubercart Cart (`uc_cart`)
+  - Ubercart Order (`uc_order`)
+
 - Core Filter support; a configured text editor is optional for rich-text editing.
 - Core Locale and a German language are optional for the supplied translation.
 - Paragraphs is NOT a dependency: referenced pages render themselves normally.
@@ -17,12 +24,25 @@ It is a statically reviewed release candidate, not a live-site certification.
 
 ## Installation
 
-Install using the standard Backdrop module installation workflow. Enable the
-module and grant "Administer checkout legal documents" only to trusted editors.
-Configure entries at admin/store/settings/checkout-terms. At least one valid
-entry must be enabled; checkout deliberately blocks when no valid set exists.
-All enabled entries apply to all orders. Rules and product-specific conditions
-are not implemented in this release.
+- Install this module using the official Backdrop CMS instructions at
+  https://docs.backdropcms.org/documentation/extend-with-modules
+
+- Enable the module under **Administration > Functionality**.
+
+- Create or identify two published nodes:
+  - Terms and conditions (AGB)
+  - Withdrawal / right-of-withdrawal information
+
+- Visit the configuration page under **Store > Configuration >
+  Legal checkout notices**
+  (`admin/store/settings/checkout-terms`).
+
+- Enter the numeric node ID and a version identifier for each document.
+
+- Save the configuration.
+
+- Test the checkout process in a staging environment before using this
+  module in production.
 
 ## Updating an existing installation
 
@@ -118,34 +138,21 @@ content are administrator-authored content; enter them in the appropriate langua
 There is one shared document configuration, not per-language legal text selection.
 The exact localized confirmation wording is stored for new events.
 
-## Documentation
-
-- docs/AUDIT.md: payload scope and limitations.
-- docs/TESTING.md: performed checks and required integration tests.
-- tests/lint.sh: PHP syntax checks on a PHP-enabled system.
-- tests/check.sh: PHP lint + isolated reference tests; optional JS syntax check.
-- CHANGELOG.md: functional changes.
-
-The directory layout follows the Backdrop module template:
-https://github.com/backdrop-contrib/module_template
-
 ## Issues
 
-Use the issue tracker of the repository hosting this module. Include Backdrop,
-Ubercart and PHP versions, a reproduction and relevant redacted log messages.
-Never publish session tokens, secrets, raw customer exports or personal data.
+Bugs and Feature Requests should be reported in the Issue Queue:
+https://github.com/backdrop-contrib/uc_checkout_terms/issues
 
 ## Current maintainers
 
-Maintainer assignment and the public project URL are managed by the project owner.
+- [Sven Götze](https://github.com/djzwerg)
+- Seeking additional maintainers
 
 ## Credits
 
-Custom development for the HSFeV checkout workflow with AI-assisted implementation
-and review. This is not a port of Drupal uc_termsofservice. The older Drupal module
-was reviewed as a functional reference; its Body/modalframe implementation is not
-used for field-independent links.
+- Written for Backdrop CMS by [Sven Götze](https://github.com/djzwerg).
 
 ## License
 
-GNU General Public License, version 2 or later. See LICENSE.txt.
+This project is GPL v2 software.
+See the LICENSE.txt file in this directory for complete text.
