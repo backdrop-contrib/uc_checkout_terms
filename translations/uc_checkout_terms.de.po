@@ -1,0 +1,181 @@
+# German interface translation for the compact checkout presentation.
+msgid ""
+msgstr ""
+"Project-Id-Version: uc_checkout_terms compact presentation\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "!document accepted."
+msgstr "!document akzeptiert."
+
+msgid "!document acknowledged."
+msgstr "!document zur Kenntnis genommen."
+
+msgid "Acceptance"
+msgstr "Zustimmung"
+
+msgid "Acknowledgement"
+msgstr "Kenntnisnahme"
+
+msgid "Add another document"
+msgstr "Weiteren Rechtstext hinzufügen"
+
+msgid "Add legal documents below. All enabled documents apply to every checkout in this release. Archive previous versions before changing a document."
+msgstr "Fügen Sie unten Rechtstexte hinzu. In dieser Version gelten alle aktivierten Rechtstexte für jede Bestellung. Archivieren Sie vor Änderungen die bisherigen Textfassungen."
+
+msgid "Administer checkout legal documents"
+msgstr "Rechtliche Checkout-Hinweise verwalten"
+
+msgid "At least one document must be enabled."
+msgstr "Mindestens ein Rechtstext muss aktiviert sein."
+
+msgid "Checkout cannot continue: @reason"
+msgstr "Der Bestellvorgang kann nicht fortgesetzt werden: @reason"
+
+msgid "Checkout legal documents"
+msgstr "Rechtliche Checkout-Hinweise"
+
+msgid "Configuration"
+msgstr "Konfiguration"
+
+msgid "Confirmation type"
+msgstr "Art der Bestätigung"
+
+msgid "Content source"
+msgstr "Textquelle"
+
+msgid "Display legal documents and collect confirmations."
+msgstr "Rechtstexte anzeigen und Bestätigungen erfassen."
+
+msgid "Document @label is not available: @reason"
+msgstr "Der Rechtstext @label ist nicht verfügbar: @reason"
+
+msgid "Document label"
+msgstr "Bezeichnung des Rechtstextes"
+
+msgid "Enabled"
+msgstr "Aktiviert"
+
+msgid "Enabled documents need a label and a version identifier."
+msgstr "Aktivierte Rechtstexte benötigen eine Bezeichnung und eine Versionskennung."
+
+msgid "Enter a node ID or select a title suggestion. Referenced pages open in a new tab and do not require a Body field."
+msgstr "Geben Sie eine Node-ID ein oder wählen Sie einen Titelvorschlag aus. Referenzierte Seiten öffnen sich in einem neuen Tab und benötigen kein Body-Feld."
+
+msgid "Enter a valid node ID or select a complete title suggestion ending in [ID]."
+msgstr "Geben Sie eine gültige Node-ID ein oder wählen Sie einen vollständigen Titelvorschlag mit [ID] am Ende aus."
+
+msgid "Formatted inline text"
+msgstr "Formatierter Inline-Text"
+
+msgid "Ignored for information-only documents. Optional checkboxes are not suitable as a substitute for required legal confirmations."
+msgstr "Wird bei reinen Informationen ignoriert. Optionale Checkboxen sind kein Ersatz für erforderliche rechtliche Bestätigungen."
+
+msgid "Information only; no checkbox"
+msgstr "Nur Information; keine Checkbox"
+
+msgid "Inline text"
+msgstr "Inline-Text"
+
+msgid "Invalid document settings."
+msgstr "Ungültige Einstellungen für den Rechtstext."
+
+msgid "Legal document"
+msgstr "Rechtstext"
+
+msgid "Legal documents have changed. Reload checkout and confirm the current versions."
+msgstr "Die Rechtstexte wurden geändert. Laden Sie den Bestellvorgang neu und bestätigen Sie die aktuellen Fassungen."
+
+msgid "Legal information"
+msgstr "Rechtliche Hinweise"
+
+msgid "Legal information is currently unavailable. Checkout cannot continue."
+msgstr "Die rechtlichen Hinweise sind derzeit nicht verfügbar. Der Bestellvorgang kann nicht fortgesetzt werden."
+
+msgid "Long formatted text without a summary. The selected text format determines the available editor. This field is used for inline and combined sources."
+msgstr "Langer formatierter Text ohne Zusammenfassung. Das gewählte Textformat bestimmt den verfügbaren Editor. Dieses Feld wird für Inline- und kombinierte Quellen verwendet."
+
+msgid "Lower numbers appear first."
+msgstr "Niedrigere Werte erscheinen zuerst."
+
+msgid "Manage legal documents and confirmations."
+msgstr "Rechtstexte und Bestätigungen verwalten."
+
+msgid "Manage public legal documents and their confirmation settings."
+msgstr "Öffentliche Rechtstexte und deren Bestätigungseinstellungen verwalten."
+
+msgid "New document"
+msgstr "Neuer Rechtstext"
+
+msgid "No active legal documents are configured."
+msgstr "Es sind keine aktiven Rechtstexte konfiguriert."
+
+msgid "No matching titles found. You can enter a node ID directly."
+msgstr "Keine passenden Titel gefunden. Sie können eine Node-ID direkt eingeben."
+
+msgid "No text source is configured."
+msgstr "Es ist keine Textquelle konfiguriert."
+
+msgid "Recorded documents: @labels"
+msgstr "Protokollierte Rechtstexte: @labels"
+
+msgid "Referenced content"
+msgstr "Referenzierter Inhalt"
+
+msgid "Referenced content link and inline text"
+msgstr "Link zum referenzierten Inhalt und Inline-Text"
+
+msgid "Remove"
+msgstr "Entfernen"
+
+msgid "Require confirmation"
+msgstr "Bestätigung erforderlich"
+
+msgid "Save configuration"
+msgstr "Konfiguration speichern"
+
+msgid "The checkout order could not be identified."
+msgstr "Die Bestellung konnte nicht ermittelt werden."
+
+msgid "The configuration could not be saved. Reload the form and try again."
+msgstr "Die Einstellungen konnten nicht gespeichert werden. Laden Sie das Formular neu und versuchen Sie es erneut."
+
+msgid "The configuration has been saved."
+msgstr "Die Einstellungen wurden gespeichert."
+
+msgid "The document list is incomplete. Reload the form."
+msgstr "Die Liste der Rechtstexte ist unvollständig. Laden Sie das Formular neu."
+
+msgid "The field @label is required."
+msgstr "Das Feld @label ist erforderlich."
+
+msgid "The filtered text is empty."
+msgstr "Der gefilterte Text ist leer."
+
+msgid "The referenced content must be published and accessible to guests."
+msgstr "Der referenzierte Inhalt muss veröffentlicht und für Gäste zugänglich sein."
+
+msgid "The text format is missing or disabled."
+msgstr "Das Textformat fehlt oder ist deaktiviert."
+
+msgid "The text is empty."
+msgstr "Der Text ist leer."
+
+msgid "Title search is unavailable. Enter a node ID directly or reload this page."
+msgstr "Die Titelsuche ist nicht verfügbar. Geben Sie eine Node-ID direkt ein oder laden Sie diese Seite neu."
+
+msgid "Version identifier"
+msgstr "Versionskennung"
+
+msgid "Weight"
+msgstr "Reihenfolge"
+
+msgid "Weight must be an integer."
+msgstr "Die Reihenfolge muss als ganze Zahl angegeben werden."
+
+msgid "You do not have permission to use the selected text format."
+msgstr "Sie haben keine Berechtigung, das gewählte Textformat zu verwenden."
+

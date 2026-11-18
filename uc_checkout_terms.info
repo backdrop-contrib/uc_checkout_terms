@@ -1,10 +1,10 @@
-type = module
 name = Ubercart Checkout Terms
 description = Configurable legal documents, formatted text and checkout confirmations.
+type = module
 backdrop = 1.x
-
-configure = admin/store/settings/checkout-terms
-
-; List any dependencies here.
+package = Ubercart - extra
+version = 1.x-2.0.0-beta2
 dependencies[] = uc_cart
 dependencies[] = uc_order
+dependencies[] = filter
+configure = admin/store/settings/checkout-terms

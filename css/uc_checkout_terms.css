@@ -1,0 +1,36 @@
+/**
+ * @file
+ * Compact legal text accordion and confirmation list.
+ */
+.uc-checkout-terms-text {
+  overflow-wrap: anywhere;
+  margin: 0.75rem 0;
+}
+.uc-checkout-terms-text img {
+  max-width: 100%;
+  height: auto;
+}
+.uc-checkout-terms-detail {
+  margin: 0 0 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #bbb;
+}
+.uc-checkout-terms-detail > summary {
+  display: list-item;
+  cursor: pointer;
+  font-weight: bold;
+}
+.uc-checkout-terms-detail > summary:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+.uc-checkout-terms-confirmations {
+  margin-top: 1rem;
+}
+.uc-checkout-terms-confirmations > .form-item {
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+.uc-checkout-terms-confirmations label {
+  text-transform: none;
+}

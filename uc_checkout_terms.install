@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * @file
+ * Installation and migration hooks for Checkout Terms.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function uc_checkout_terms_install() {
+  uc_checkout_terms_migrate();
+}
+
+/**
+ * Converts the legacy two-document configuration to repeatable entries.
+ */
+function uc_checkout_terms_update_1000() {
+  if (!function_exists('uc_checkout_terms_migrate')) {
+    backdrop_load('module', 'uc_checkout_terms');
+  }
+  uc_checkout_terms_migrate();
+  return t('Legacy legal documents have been converted. Review all document settings before reopening checkout.');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function uc_checkout_terms_uninstall() {
+  // Keep historical order snapshots; only remove the active configuration.
+  config('uc_checkout_terms.settings')->delete();
+}
+
+/**
+ * Registers the field-independent link policy without rewriting order history.
+ */
+function uc_checkout_terms_update_1001() {
+  if (!function_exists('uc_checkout_terms_migrate')) {
+    backdrop_load('module', 'uc_checkout_terms');
+  }
+  uc_checkout_terms_migrate();
+  return t('Node references now link to the public page without requiring Body. New audit entries use schema 3. Historical snapshots are unchanged. Review your settings.');
+}
